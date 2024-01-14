@@ -1,0 +1,15 @@
+{
+    "name": "imicra/wc-yandex-delivery",
+    "autoload": {
+        "psr-4": {
+            "Imicra\\WcYandexDelivery\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Vas Zhigalov",
+            "email": "vas.zhigalov@gmail.com"
+        }
+    ],
+    "require": {}
+}
