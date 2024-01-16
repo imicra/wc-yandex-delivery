@@ -53,10 +53,26 @@ class WC_Yandex_Shipping_Method extends WC_Shipping_Method {
 	 * @param array $package Package information.
 	 */
 	public function calculate_shipping( $package = array() ) {
+        if ( ! empty( $_REQUEST["post_data"] ) ) {
+            $post_data = wp_parse_args( $_REQUEST["post_data"] );
+
+            if ( ! empty( $post_data["imwcyad_cost"] ) ) {
+                $cost = (int)$post_data["imwcyad_cost"];
+                WC()->session->set( 'imwcyad_cost', $cost );
+            }
+        }
+
+        $cost = WC()->session->get( 'imwcyad_cost' );
+
+        if ( empty( $cost ) ) {
+            $cost = 0;
+        }
+
 		$this->add_rate(
 			array(
 				'label'   => $this->title,
 				'package' => $package,
+                'cost' => $cost // get from api
 			)
 		);
 	}

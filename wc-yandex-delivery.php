@@ -88,6 +88,7 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
             }
 
             require_once dirname( __FILE__ ) . '/' . 'includes/functions.php';
+            require_once dirname( __FILE__ ) . '/' . 'includes/Ajax.php';
         }
 
         /**
@@ -97,6 +98,7 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
             // Register shipping method
             add_action( 'woocommerce_shipping_init', [ $this, 'init_shipping_method' ] );
             add_filter( 'woocommerce_shipping_methods', [ $this, 'add_shipping_method' ] );
+            add_action( 'wp_enqueue_scripts', [ $this, 'register_assets' ] );
         }
 
         public function init_shipping_method() {
@@ -107,6 +109,19 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
             $shipping_methods[ IMYAD_PLUGIN_ID ] = 'WC_Yandex_Shipping_Method';
 
             return $shipping_methods;
+        }
+
+        public static function register_assets() {
+            if ( is_checkout() ) {
+                wp_enqueue_script( IMYAD_PLUGIN_ID . '-checkout', plugins_url( '/assets/js/checkout.js', __FILE__ ), [], '1.0.0', true );
+
+                wp_localize_script( IMYAD_PLUGIN_ID . '-checkout', 'imwcyad',
+                    array(
+                        'debug' => SCRIPT_DEBUG,
+                        'ajax_url' => admin_url( 'admin-ajax.php' ),
+                    )
+                );
+            }
         }
     }
 endif;
