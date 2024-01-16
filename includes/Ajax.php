@@ -4,19 +4,13 @@
  */
 
 use Imicra\WcYandexDelivery\Geocoder;
+use Imicra\WcYandexDelivery\Client;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 class Ajax {
-    private const DELIVERY_TOKEN = 'y0_AgAAAAByecb5AAc6MQAAAADzZWvYmy2Q72usQquHONr7vEXdUJNRcFY';
-
-    // TODO get this from options
-    // 'Домодедово, д. Павловское, ул. Вокзальная, 82';
-    private const WAREHOUSE_LON = '37.717761';
-    private const WAREHOUSE_LAT = '55.48098';
-
     function __construct() {
         $this->add_ajax_events();
     }
@@ -37,8 +31,11 @@ class Ajax {
 
         $position = Geocoder::getPoint( $address );
 
+        $response = new Client( $position, $address );
+        $response = $response->create();
+
         $data = array(
-            $position
+            $response
         );
 
         wp_send_json( $data );

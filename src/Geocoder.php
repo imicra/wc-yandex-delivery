@@ -7,33 +7,35 @@
 namespace Imicra\WcYandexDelivery;
 
 final class Geocoder {
-    private const GEO_BASE_URL = 'https://geocode-maps.yandex.ru/1.x';
+    private const BASE_URL = 'https://geocode-maps.yandex.ru/1.x';
 
     // TODO get this from options
-    private const GEO_TOKEN = 'b382e2ff-ac8c-4c06-95b5-8c37e84f5812';
+    private const TOKEN = 'b382e2ff-ac8c-4c06-95b5-8c37e84f5812';
     private $token;
 
     /**
+     * @param string $address post data
      * @return array $position coordinates
      */
     public static function getPoint( string $address ) {
-        // geocoder
         $params = [
             'geocode' => $address,
             'format' => 'json',
-            'apikey' => self::GEO_TOKEN,
+            'apikey' => self::TOKEN,
         ];
-        $url = add_query_arg( $params, self::GEO_BASE_URL );
+
+        $url = self::BASE_URL;
+        $url = add_query_arg( $params, $url );
+
         $response = wp_remote_get( $url );
+
         $result = wp_remote_retrieve_body( $response );
         $result = json_decode( $result, true );
+
         $position = $result['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'];
         list( $lon, $lat ) = explode( ' ', $position );
 
-        $position = array(
-            'lon' => $lon,
-            'lat' => $lat
-        );
+        $position = array_map( 'intval', [$lon, $lat] );
 
         return $position;
     }
