@@ -11,7 +11,6 @@ final class Geocoder {
 
     // TODO get this from options
     private const TOKEN = 'b382e2ff-ac8c-4c06-95b5-8c37e84f5812';
-    private $token;
 
     /**
      * @param string $address post data
@@ -35,7 +34,7 @@ final class Geocoder {
         $position = $result['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos'];
         list( $lon, $lat ) = explode( ' ', $position );
 
-        $position = array_map( 'intval', [$lon, $lat] );
+        $position = array_map( 'floatval', [$lon, $lat] );
 
         return $position;
     }

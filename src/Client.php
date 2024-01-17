@@ -45,7 +45,43 @@ class Client {
         $this->address = $address;
     }
 
-    private function getData( string $path, array $options, string $query = '' ) {
+    public function init() {
+        $res = $this->create();
+        $claim_id = $res['id'];
+
+        $info = $this->getUntilReadyForApproval( $claim_id );
+
+        // pricing.offer
+        return [
+            $claim_id,
+            floatval( $info['pricing']['offer']['price'] ),
+            $info
+        ];
+
+        // available_cancel_state === free - claims/cancel
+    }
+
+    public function getUntilReadyForApproval( $claim_id ) {
+        $res = $this->claimInfo( $claim_id );
+
+        if ( 'ready_for_approval' !== $res['status'] ) {
+            $i = 1;
+			do {
+				usleep( 500000 );
+				$i ++;
+				$res = $this->claimInfo( $claim_id );
+			} while ( 'ready_for_approval' !== $res['status'] && $i < 15 );
+        }
+
+        if ( 'ready_for_approval' !== $res['status'] ) {
+            return "Current status: {$res['status']}";
+        }
+
+        // return $this->claimAccept( $claim_id );
+        return $this->claimInfo( $claim_id ); // test
+    }
+
+    private function getData( string $path, string $query = '', array $options = [] ) {
         $url = self::BASE_URL . "/{$path}?{$query}";
         // $url = add_query_arg( $params, $url );
         $args['body'] = json_encode( $options );
@@ -59,30 +95,15 @@ class Client {
         return $result;
     }
 
-    public function create() {
+    private function create() {
         $path =  'claims/create';
         $request_id = uniqid();
         $query = "request_id={$request_id}";
         $options = [
             'callback_properties' => [
-                'callback_url' => 'https://localhost:3000'
+                'callback_url' => 'https://localhost:3000/'
             ],
-            'items' => [
-                [
-                    "cost_currency" => "RUB",
-                    "cost_value" => "2.00",
-                    "droppof_point" => 2,
-                    "pickup_point" => 1,
-                    "quantity" => 1,
-                    'size' => [
-                        'height' => 0.45,
-                        'length' => 0.45,
-                        'width' => 0.45
-                    ],
-                    "title" => "Плюмбус",
-                    'weight' => 0.45
-                ]
-            ],
+            'items' => $this->claimItems(),
             'route_points' => [
                 [
                     'address' => [
@@ -116,9 +137,76 @@ class Client {
             ]
         ];
 
-        $result = $this->getData( $path, $options, $query );
+        $result = $this->getData( $path, $query, $options );
 
         return $result;
+    }
+
+    private function claimInfo( $claim_id ) {
+        $path =  'claims/info';
+        $query = "claim_id={$claim_id}";
+
+        $result = $this->getData( $path, $query );
+
+        return $result;
+    }
+
+    private function claimAccept( $claim_id ) {
+        $path =  'claims/accept';
+        $query = "claim_id={$claim_id}";
+        $options = [
+            'version' => 1
+        ];
+
+        $result = $this->getData( $path, $query, $options );
+
+        return $result;
+    }
+
+    private function claimItems() {
+        $items = [];
+        // Get packages to calculate shipping for.
+        $shipping_packages = WC()->cart->get_shipping_packages();
+
+        if ( ! empty( $shipping_packages[0]["contents"] ) ) {
+            $shipping_items = array();
+
+            foreach ( $shipping_packages[0]["contents"] as $cart_item ) {
+                $shipping_items[] = [
+                    // TODO convert dimentions and weight to m and kg
+                    'length' => (int)$cart_item["data"]->get_length() * 0.01,
+                    'width' => (int)$cart_item["data"]->get_width() * 0.01,
+                    'height' => (int)$cart_item["data"]->get_height() * 0.01,
+                    'weight' => (int)$cart_item["data"]->get_weight() * 0.001,
+                    'title' => $cart_item["data"]->get_name(),
+                    'product_price' => $cart_item["product_price"],
+                    'quantity' => (int)$cart_item["quantity"],
+                ];
+            }
+        } else {
+            $shipping_items = array();
+        }
+
+        // generate items array
+        foreach ( $shipping_items as $item ) {
+            // TODO create default values for dimentions and weight
+            $items[] = [
+                "cost_currency" => "RUB",
+                "droppof_point" => 2,
+                "pickup_point" => 1,
+                'cost_value' => $item['product_price'],
+                'quantity' => $item['quantity'],
+                'title' => $item['title'],
+                'weight' => $item['weight'],
+                'size' => [
+                    'height' => $item['height'],
+                    'length' => $item['length'],
+                    'width' => $item['width'],
+                ]
+            ];
+        }
+
+        return $items;
     }
 
     public function checkPrice() {
@@ -143,7 +231,7 @@ class Client {
             ]
         ];
 
-        $result = $this->getData( $path, $options );
+        $result = $this->getData( $path, '', $options );
 
         return $result;
     }

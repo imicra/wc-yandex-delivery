@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: WooCommerce Yandex Delivery
- * Plugin URI: https://github.com/imicra/
+ * Plugin URI: https://github.com/imicra/wc-yandex-delivery
  * Description: Интеграция Яндекс Доставки.
  * Version: 1.0.0
  * Author: Imicra
