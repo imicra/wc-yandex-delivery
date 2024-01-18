@@ -113,6 +113,7 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
 
         public static function register_assets() {
             if ( is_checkout() ) {
+                wp_enqueue_style( IMYAD_PLUGIN_ID . '-checkout', plugins_url( '/assets/css/style.css', __FILE__ ), [], '1.0.0' );
                 wp_enqueue_script( IMYAD_PLUGIN_ID . '-checkout', plugins_url( '/assets/js/checkout.js', __FILE__ ), [], '1.0.0', true );
 
                 wp_localize_script( IMYAD_PLUGIN_ID . '-checkout', 'imwcyad',

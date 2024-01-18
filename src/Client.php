@@ -51,7 +51,6 @@ class Client {
 
         $info = $this->getUntilReadyForApproval( $claim_id );
 
-        // pricing.offer
         return [
             $claim_id,
             floatval( $info['pricing']['offer']['price'] ),
@@ -155,6 +154,19 @@ class Client {
         $path =  'claims/accept';
         $query = "claim_id={$claim_id}";
         $options = [
+            'version' => 1
+        ];
+
+        $result = $this->getData( $path, $query, $options );
+
+        return $result;
+    }
+
+    private function claimCancel( $claim_id ) {
+        $path =  'claims/cancel';
+        $query = "claim_id={$claim_id}";
+        $options = [
+            'cancel_state' => 'free',
             'version' => 1
         ];
 

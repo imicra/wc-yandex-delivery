@@ -1,0 +1,17 @@
+.woocommerce-checkout-payment,
+.woocommerce-checkout-review-order-table {
+    position: relative;
+}
+
+.woocommerce-checkout-payment.overlay::before,
+.woocommerce-checkout-review-order-table.overlay::before {
+    content: '';
+    background-color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: .6;
+    z-index: 1000;
+}

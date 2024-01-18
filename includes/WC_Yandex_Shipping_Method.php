@@ -72,7 +72,7 @@ class WC_Yandex_Shipping_Method extends WC_Shipping_Method {
 			array(
 				'label'   => $this->title,
 				'package' => $package,
-                'cost' => $cost // get from api
+                //'cost' => $cost // get from api
 			)
 		);
 	}

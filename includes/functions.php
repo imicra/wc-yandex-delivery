@@ -8,10 +8,113 @@
  */
 function imicra_shipping_rate_cost( $method ) {
   if ( strstr( $method->id, IMYAD_PLUGIN_ID ) ) {
+    // $cost = WC()->session->get( 'imwcyad_cost' ) ? WC()->session->get( 'imwcyad_cost' ) : 0;
+
     echo '<input type="hidden" name="imwcyad_cost" id="imwcyad_cost" />';
+    echo '<input type="hidden" name="imwcyad_data" id="imwcyad_data" />';
   }
 }
 add_action( 'woocommerce_after_shipping_rate', 'imicra_shipping_rate_cost' );
+
+/**
+ * Add price html to shipping method label in a list of shipping methods.
+ */
+function imicra_shipping_method_label( $label, $method ) {
+    if ( strstr( $method->id, IMYAD_PLUGIN_ID ) ) {
+        $label .= ': ' . wc_price( 0 );
+    }
+
+    return $label;
+}
+add_filter( 'woocommerce_cart_shipping_method_full_label', 'imicra_shipping_method_label', 10, 2 );
+
+/**
+ * Set total and shipping_total to a new order when a new order is create.
+ */
+function imicra_checkout_create_order( $order ) {
+    if ( isset( $_POST['imwcyad_cost'] ) && ! empty( $_POST['imwcyad_cost'] ) ) {
+        $cost = (int)$_POST["imwcyad_cost"];
+        $total = $order->get_total();
+        $total = $total + $cost;
+
+        $order->set_shipping_total( $cost );
+        $order->set_total( $total );
+
+
+    }
+
+    // create request to api for accept claim
+    if ( isset( $_POST['imwcyad_data'] ) && ! empty( $_POST['imwcyad_data'] ) ) {
+        $claim_id = wp_unslash( $_POST['imwcyad_data'] );
+        $path =  'claims/accept';
+        $query = "claim_id={$claim_id}";
+        $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
+        $args = [
+            'headers' => [
+                'Authorization'   => "Bearer y0_AgAAAAByecb5AAc6MQAAAADzZWvYmy2Q72usQquHONr7vEXdUJNRcFY",
+                'Accept-Language' => 'ru',
+                'Content-Type'    => 'application/json'
+            ],
+            'body' => [
+                'version' => 1
+            ]
+        ];
+        $response = wp_remote_post( $url, $args );
+        $result = wp_remote_retrieve_body( $response );
+        $result = json_decode( $result, true );
+
+        // create order meta for keep claim data in order
+        $order->update_meta_data( 'imwcyad_data', $result );
+    }
+
+}
+add_action( 'woocommerce_checkout_create_order', 'imicra_checkout_create_order' );
+
+function imicra_order_shipping_data( $order_id ) {
+    $claim_data = get_post_meta( $order_id, 'imwcyad_data', true );
+
+    // if ( $claim_data ) :
+    ?>
+        <tr>
+            <td></td>
+            <td>
+                <!-- <button type="button" class="button imwcyad_btn_info" data-id="">Информация по заявке</button> -->
+                <button type="button" class="button imwcyad_btn_cancel" data-id="">Отмена заявки</button>
+                <div class="imwcyad_order_info">
+                    <div>Бесплатная отмена доступна</div>
+                    <div>status: "ready_for_approval"</div>
+                </div>
+            </td>
+        </tr>
+    <?php
+    // endif;
+}
+add_action( 'woocommerce_admin_order_items_after_shipping', 'imicra_order_shipping_data' );
+
+/**
+ * Add span to the price format for js interactions.
+ */
+function imicra_price_format( $format, $currency_pos ) {
+	$format = '%1$s<span class="sum">%2$s</span>';
+
+	switch ( $currency_pos ) {
+		case 'left':
+			$format = '%1$s<span class="sum">%2$s</span>';
+			break;
+		case 'right':
+			$format = '<span class="sum">%2$s</span>%1$s';
+			break;
+		case 'left_space':
+			$format = '%1$s&nbsp;<span class="sum">%2$s</span>';
+			break;
+		case 'right_space':
+			$format = '<span class="sum">%2$s</span>&nbsp;%1$s';
+			break;
+	}
+
+	return $format;
+}
+add_filter( 'woocommerce_price_format', 'imicra_price_format', 10, 2 );
 
 /**
  * Get items needing shipping data for api.

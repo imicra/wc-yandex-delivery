@@ -35,27 +35,30 @@ class Ajax {
         $response = $response->init();
 
         $offerPrice = $response[1];
-        WC()->session->set( 'imwcyad_cost', $offerPrice );
+
+        // WC()->session->set( 'imwcyad_cost', null );
+        // WC()->session->set( 'imwcyad_cost', $offerPrice );
 
         // Get order review fragment.
-		ob_start();
-		woocommerce_order_review();
-		$woocommerce_order_review = ob_get_clean();
+		// ob_start();
+		// woocommerce_order_review();
+		// $woocommerce_order_review = ob_get_clean();
 
-        wp_send_json(
-			array(
-                'offerPrice' => $offerPrice,
-				'fragments' => array(
-                    '.woocommerce-checkout-review-order-table' => $woocommerce_order_review,
-                )
-			)
-		);
+        // wp_send_json(
+		// 	array(
+        //         'offerPrice' => $offerPrice,
+		// 		'fragments' => array(
+        //             '.woocommerce-checkout-review-order-table' => $woocommerce_order_review,
+        //         )
+		// 	)
+		// );
 
         // $data = array(
+        //     $offerPrice,
         //     $response
         // );
 
-        // wp_send_json( $response );
+        wp_send_json( $response );
     }
 }
 
