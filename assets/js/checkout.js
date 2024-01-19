@@ -9,8 +9,8 @@ jQuery( function( $ ) {
             this.init_shipping();
         },
         update_checkout_action: function() {
-            $this = $(this);
-                var address = $this.val();
+            var $this = $(this),
+                address = $this.val();
 
             // $( '.woocommerce-checkout-payment, .woocommerce-checkout-review-order-table' ).block({
             //     message: null,
@@ -37,9 +37,12 @@ jQuery( function( $ ) {
                 dataType: 'json'
             });
         },
-        update_shipping_method(response) {
-            console.log(response);
-            // console.log(response.pricing.offer.price);
+        update_shipping_method: function(response) {
+            if (imwcyad.debug) {
+                console.log(response);
+                // console.log(response.pricing.offer.price);
+            }
+
             var subtotal = $('.woocommerce-checkout-review-order-table').find('.cart-subtotal .sum').text();
             var cost = response[1];
             var total = parseFloat(subtotal) + cost;
@@ -63,14 +66,14 @@ jQuery( function( $ ) {
             // $( '.woocommerce-checkout-review-order-table, .woocommerce-checkout-payment' ).unblock();
             $( '.woocommerce-checkout-payment, .woocommerce-checkout-review-order-table' ).removeClass('overlay');
         },
-        change_shipping_method() {
+        change_shipping_method: function() {
             var method = $(this).val().split(':');
 
             if ("imicra-yandex-delivery" === method[0]) {
                 wc_checkout_form.address_field.trigger('change');
             }
         },
-        init_shipping() {
+        init_shipping: function() {
             $('input.shipping_method').each(function() {
                 var method = $(this).val().split(':');
 

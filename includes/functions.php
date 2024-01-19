@@ -49,16 +49,18 @@ function imicra_checkout_create_order( $order ) {
         $path =  'claims/accept';
         $query = "claim_id={$claim_id}";
         $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
-        $args = [
+        $headers = [
             'headers' => [
                 'Authorization'   => "Bearer y0_AgAAAAByecb5AAc6MQAAAADzZWvYmy2Q72usQquHONr7vEXdUJNRcFY",
                 'Accept-Language' => 'ru',
                 'Content-Type'    => 'application/json'
-            ],
-            'body' => [
-                'version' => 1
             ]
         ];
+        $body = [
+            'version' => 1
+        ];
+        $args['body'] = json_encode( $body );
+        $args = array_merge( $headers, $args );
         $response = wp_remote_post( $url, $args );
         $result = wp_remote_retrieve_body( $response );
         $result = json_decode( $result, true );
@@ -71,23 +73,35 @@ function imicra_checkout_create_order( $order ) {
 add_action( 'woocommerce_checkout_create_order', 'imicra_checkout_create_order' );
 
 function imicra_order_shipping_data( $order_id ) {
-    $claim_data = get_post_meta( $order_id, 'imwcyad_data', true );
+    $order = wc_get_order( $order_id );
+    $claim_data = $order->get_meta( 'imwcyad_data' );
 
-    // if ( $claim_data ) :
+    if ( $claim_data ) :
     ?>
         <tr>
             <td></td>
             <td>
-                <!-- <button type="button" class="button imwcyad_btn_info" data-id="">Информация по заявке</button> -->
-                <button type="button" class="button imwcyad_btn_cancel" data-id="">Отмена заявки</button>
-                <div class="imwcyad_order_info">
-                    <div>Бесплатная отмена доступна</div>
-                    <div>status: "ready_for_approval"</div>
-                </div>
+                <?php
+                // if accept claim success
+                if ( array_key_exists( 'id', $claim_data ) ) :
+                ?>
+                    <button type="button" class="button imwcyad_btn_info" data-id="<?php echo $claim_data['id']; ?>">Информация по заявке</button>
+                    <button type="button" class="button imwcyad_btn_cancel" data-id="<?php echo $claim_data['id']; ?>">Отмена заявки</button>
+                    <div class="imwcyad_order_info" style="display: none;">
+                        <div class="cancel">Возможность отмены: <b>-</b></div>
+                        <div class="status">Статус заявки: <b>-</b></div>
+                        <div class="message">Ошибка: <b>Нет ошибок</b></div>
+                    </div>
+                <?php
+                // if accept claim error
+                else :
+                ?>
+                    <?php echo $claim_data['code'] . ' : ' . $claim_data['message']; ?>
+                <?php endif; ?>
             </td>
         </tr>
     <?php
-    // endif;
+    endif;
 }
 add_action( 'woocommerce_admin_order_items_after_shipping', 'imicra_order_shipping_data' );
 

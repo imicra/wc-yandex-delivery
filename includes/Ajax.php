@@ -18,6 +18,8 @@ class Ajax {
     public function add_ajax_events() {
         $ajax_events = [
             'claims',
+            'order_info',
+            'order_cancel',
         ];
 
         foreach ( $ajax_events as $ajax_event ) {
@@ -59,6 +61,50 @@ class Ajax {
         // );
 
         wp_send_json( $response );
+    }
+
+    public function order_info() {
+        $claim_id = wp_unslash( $_POST['claim_id'] );
+        $path =  'claims/info';
+        $query = "claim_id={$claim_id}";
+        $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
+        $args = [
+            'headers' => [
+                'Authorization'   => "Bearer y0_AgAAAAByecb5AAc6MQAAAADzZWvYmy2Q72usQquHONr7vEXdUJNRcFY",
+                'Accept-Language' => 'ru',
+                'Content-Type'    => 'application/json'
+            ]
+        ];
+        $response = wp_remote_post( $url, $args );
+        $result = wp_remote_retrieve_body( $response );
+        $result = json_decode( $result, true );
+
+        wp_send_json( $result );
+    }
+
+    public function order_cancel() {
+        $claim_id = wp_unslash( $_POST['claim_id'] );
+        $path =  'claims/cancel';
+        $query = "claim_id={$claim_id}";
+        $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
+        $headers = [
+            'headers' => [
+                'Authorization'   => "Bearer y0_AgAAAAByecb5AAc6MQAAAADzZWvYmy2Q72usQquHONr7vEXdUJNRcFY",
+                'Accept-Language' => 'ru',
+                'Content-Type'    => 'application/json'
+            ]
+        ];
+        $body = [
+            'cancel_state' => 'free',
+            'version' => 1
+        ];
+        $args['body'] = json_encode( $body );
+        $args = array_merge( $headers, $args );
+        $response = wp_remote_post( $url, $args );
+        $result = wp_remote_retrieve_body( $response );
+        $result = json_decode( $result, true );
+
+        wp_send_json( $result );
     }
 }
 

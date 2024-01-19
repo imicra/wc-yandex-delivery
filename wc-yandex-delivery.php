@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WooCommerce Yandex Delivery
  * Plugin URI: https://github.com/imicra/wc-yandex-delivery
- * Description: Интеграция Яндекс Доставки.
+ * Description: Интеграция Яндекс Доставки с WooCommerce.
  * Version: 1.0.0
  * Author: Imicra
  * Author URI: https://github.com/imicra/
@@ -99,6 +99,7 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
             add_action( 'woocommerce_shipping_init', [ $this, 'init_shipping_method' ] );
             add_filter( 'woocommerce_shipping_methods', [ $this, 'add_shipping_method' ] );
             add_action( 'wp_enqueue_scripts', [ $this, 'register_assets' ] );
+            add_action( 'admin_enqueue_scripts', [ $this, 'register_assets_admin' ] );
         }
 
         public function init_shipping_method() {
@@ -120,6 +121,21 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
                     array(
                         'debug' => SCRIPT_DEBUG,
                         'ajax_url' => admin_url( 'admin-ajax.php' ),
+                    )
+                );
+            }
+        }
+
+        public function register_assets_admin( $hook_suffix ) {
+            if ( 'woocommerce_page_wc-orders' === $hook_suffix ) {
+                wp_enqueue_script( IMYAD_PLUGIN_ID . '-order', plugins_url( '/assets/js/order.js', __FILE__ ), [], '1.0.0', true );
+
+                wp_localize_script( IMYAD_PLUGIN_ID . '-order', 'imwcyad',
+                    array(
+                        'debug' => SCRIPT_DEBUG,
+                        'ajax_url' => admin_url( 'admin-ajax.php' ),
+                        'statuses' => json_encode( \Imicra\WcYandexDelivery\Status::namesList() ),
+                        'available_cancel_state' => json_encode( \Imicra\WcYandexDelivery\Status::cancelInfo() ),
                     )
                 );
             }

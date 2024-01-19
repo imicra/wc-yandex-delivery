@@ -100,7 +100,7 @@ class Client {
         $query = "request_id={$request_id}";
         $options = [
             'callback_properties' => [
-                'callback_url' => 'https://localhost:3000/'
+                'callback_url' => 'https://' . $_SERVER['SERVER_NAME']
             ],
             'items' => $this->claimItems(),
             'route_points' => [
