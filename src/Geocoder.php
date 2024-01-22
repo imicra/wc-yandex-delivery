@@ -9,18 +9,16 @@ namespace Imicra\WcYandexDelivery;
 final class Geocoder {
     private const BASE_URL = 'https://geocode-maps.yandex.ru/1.x';
 
-    // TODO get this from options
-    private const TOKEN = 'b382e2ff-ac8c-4c06-95b5-8c37e84f5812';
-
     /**
      * @param string $address post data
      * @return array $position coordinates
      */
     public static function getPoint( string $address ) {
+        $apikey = Helper::getActualShippingMethod()->get_option( 'yandex_map_api_key' );
         $params = [
             'geocode' => $address,
             'format' => 'json',
-            'apikey' => self::TOKEN,
+            'apikey' => $apikey,
         ];
 
         $url = self::BASE_URL;

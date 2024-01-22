@@ -3,6 +3,8 @@
  * Functions
  */
 
+use Imicra\WcYandexDelivery\Helper;
+
 /**
  * Input value for hold cost from delivery api.
  */
@@ -49,9 +51,10 @@ function imicra_checkout_create_order( $order ) {
         $path =  'claims/accept';
         $query = "claim_id={$claim_id}";
         $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
+        $token = Helper::getActualShippingMethod()->get_option( 'client_secret' );
         $headers = [
             'headers' => [
-                'Authorization'   => "Bearer y0_AgAAAAByecb5AAc6MQAAAADzZWvYmy2Q72usQquHONr7vEXdUJNRcFY",
+                'Authorization'   => "Bearer {$token}",
                 'Accept-Language' => 'ru',
                 'Content-Type'    => 'application/json'
             ]
@@ -180,7 +183,7 @@ function imicra_get_shipping_items_data() {
         }
 
     // return $shipping_items;
-    imicra_var_dump($items);
+    imicra_var_dump($shipping_packages);
 }
 // add_action( 'woocommerce_after_checkout_form', 'imicra_get_shipping_items_data', 10 );
 

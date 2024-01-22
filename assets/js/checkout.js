@@ -12,6 +12,19 @@ jQuery( function( $ ) {
             var $this = $(this),
                 address = $this.val();
 
+            // only if imicra-yandex-delivery method is checked
+            var currentMethod;
+            $('input.shipping_method').each(function() {
+                var method = $(this).val().split(':');
+
+                if ($(this).is(':checked')) {
+                    currentMethod = method[0];
+                }
+            });
+            if (currentMethod !== "imicra-yandex-delivery") {
+                return;
+            }
+
             // $( '.woocommerce-checkout-payment, .woocommerce-checkout-review-order-table' ).block({
             //     message: null,
             //     overlayCSS: {
@@ -40,12 +53,12 @@ jQuery( function( $ ) {
         update_shipping_method: function(response) {
             if (imwcyad.debug) {
                 console.log(response);
-                // console.log(response.pricing.offer.price);
             }
 
             var subtotal = $('.woocommerce-checkout-review-order-table').find('.cart-subtotal .sum').text();
-            var cost = response[1];
+            var cost = typeof response.pricing !== 'undefined' && response.pricing.length !== 0 ? response.pricing[0].offer.price : 0;
             var total = parseFloat(subtotal) + cost;
+            var claimId = response.id;
 
             $('input.shipping_method').each(function() {
                 var method = $(this).val().split(':');
@@ -56,7 +69,7 @@ jQuery( function( $ ) {
             });
 
             $('.woocommerce-checkout-review-order-table').find('#imwcyad_cost').val(cost);
-            $('.woocommerce-checkout-review-order-table').find('#imwcyad_data').val(response[0]); // claim id
+            $('.woocommerce-checkout-review-order-table').find('#imwcyad_data').val(claimId);
             $('.woocommerce-checkout-review-order-table').find('.order-total .sum').text(total);
 
             // $.each( response.fragments, function( key, value ) {

@@ -6,21 +6,16 @@
 
 namespace Imicra\WcYandexDelivery;
 
+use WC_Shipping_Method;
+
 class Client {
     private const BASE_URL = 'https://b2b.taxi.yandex.net/b2b/cargo/integration/v2';
 
-    // TODO get this from options
-    private const TOKEN = 'y0_AgAAAAByecb5AAc6MQAAAADzZWvYmy2Q72usQquHONr7vEXdUJNRcFY';
+    protected WC_Shipping_Method $deliveryMethod;
 
     // TODO get this from options
-    private const WAREHOUSE = 'Домодедово, д. Павловское, ул. Вокзальная, 82';
     private const WAREHOUSE_LON = 37.717761;
     private const WAREHOUSE_LAT = 55.48098;
-
-    /**
-     * Required parameters
-     */
-    private $args;
 
     /**
      * Destination address
@@ -33,16 +28,10 @@ class Client {
     public $position;
 
     public function __construct( array $position = [], $address ) {
-        $this->args = [
-            'headers' => [
-                'Authorization'   => "Bearer " . self::TOKEN,
-                'Accept-Language' => 'ru',
-                'Content-Type'    => 'application/json'
-            ]
-        ];
-
         $this->position = $position;
         $this->address = $address;
+
+        $this->deliveryMethod = Helper::getActualShippingMethod();
     }
 
     public function init() {
@@ -51,12 +40,12 @@ class Client {
 
         $info = $this->getUntilReadyForApproval( $claim_id );
 
-        return [
-            $claim_id,
-            floatval( $info['pricing']['offer']['price'] ),
-            $info
-        ];
-
+        // return [
+        //     $claim_id,
+        //     floatval( $info['pricing']['offer']['price'] ),
+        //     $info
+        // ];
+        return $info;
         // available_cancel_state === free - claims/cancel
     }
 
@@ -77,14 +66,15 @@ class Client {
         }
 
         // return $this->claimAccept( $claim_id );
-        return $this->claimInfo( $claim_id ); // test
+        return $this->claimInfo( $claim_id );
     }
 
     private function getData( string $path, string $query = '', array $options = [] ) {
         $url = self::BASE_URL . "/{$path}?{$query}";
-        // $url = add_query_arg( $params, $url );
+
         $args['body'] = json_encode( $options );
-        $args = array_merge( $this->args, $args );
+        $headers = $this->getHeaders();
+        $args = array_merge( $headers, $args );
 
         $response = wp_remote_post( $url, $args );
 
@@ -110,11 +100,11 @@ class Client {
                             self::WAREHOUSE_LON,
                             self::WAREHOUSE_LAT
                         ],
-                        'fullname' => self::WAREHOUSE
+                        'fullname' => $this->deliveryMethod->get_option( 'seller_address' )
                     ],
                     'contact' => [
-                        "name" => "Менеджер",
-                        "phone" => "+79099999998",
+                        "name" => $this->deliveryMethod->get_option( 'seller_name' ),
+                        "phone" => $this->deliveryMethod->get_option( 'seller_phone' ),
                     ],
                     "point_id" => 1,
                     "type" => "source",
@@ -177,6 +167,7 @@ class Client {
 
     private function claimItems() {
         $items = [];
+
         // Get packages to calculate shipping for.
         $shipping_packages = WC()->cart->get_shipping_packages();
 
@@ -186,10 +177,10 @@ class Client {
             foreach ( $shipping_packages[0]["contents"] as $cart_item ) {
                 $shipping_items[] = [
                     // TODO convert dimentions and weight to m and kg
-                    'length' => (int)$cart_item["data"]->get_length() * 0.01,
-                    'width' => (int)$cart_item["data"]->get_width() * 0.01,
-                    'height' => (int)$cart_item["data"]->get_height() * 0.01,
-                    'weight' => (int)$cart_item["data"]->get_weight() * 0.001,
+                    'length' => Helper::getPackageDimention( $cart_item, 'length' ),
+                    'width' => Helper::getPackageDimention( $cart_item, 'width' ),
+                    'height' => Helper::getPackageDimention( $cart_item, 'height' ),
+                    'weight' => Helper::getPackageWeight( $cart_item ),
                     'title' => $cart_item["data"]->get_name(),
                     'product_price' => $cart_item["product_price"],
                     'quantity' => (int)$cart_item["quantity"],
@@ -219,6 +210,18 @@ class Client {
         }
 
         return $items;
+    }
+
+    private function getHeaders() {
+        $args = [
+            'headers' => [
+                'Authorization'   => "Bearer " . $this->deliveryMethod->get_option( 'client_secret' ),
+                'Accept-Language' => 'ru',
+                'Content-Type'    => 'application/json'
+            ]
+        ];
+
+        return $args;
     }
 
     public function checkPrice() {

@@ -53,20 +53,20 @@ class WC_Yandex_Shipping_Method extends WC_Shipping_Method {
 	 * @param array $package Package information.
 	 */
 	public function calculate_shipping( $package = array() ) {
-        if ( ! empty( $_REQUEST["post_data"] ) ) {
-            $post_data = wp_parse_args( $_REQUEST["post_data"] );
+        // if ( ! empty( $_REQUEST["post_data"] ) ) {
+        //     $post_data = wp_parse_args( $_REQUEST["post_data"] );
 
-            if ( ! empty( $post_data["imwcyad_cost"] ) ) {
-                $cost = (int)$post_data["imwcyad_cost"];
-                WC()->session->set( 'imwcyad_cost', $cost );
-            }
-        }
+        //     if ( ! empty( $post_data["imwcyad_cost"] ) ) {
+        //         $cost = (int)$post_data["imwcyad_cost"];
+        //         WC()->session->set( 'imwcyad_cost', $cost );
+        //     }
+        // }
 
-        $cost = WC()->session->get( 'imwcyad_cost' );
+        // $cost = WC()->session->get( 'imwcyad_cost' );
 
-        if ( empty( $cost ) ) {
-            $cost = 0;
-        }
+        // if ( empty( $cost ) ) {
+        //     $cost = 0;
+        // }
 
 		$this->add_rate(
 			array(
@@ -91,5 +91,84 @@ class WC_Yandex_Shipping_Method extends WC_Shipping_Method {
 				'desc_tip'    => true,
 			),
         );
+
+        $this->form_fields = [
+            'client_secret' => [
+                'title'             => 'Токен API Доставки Яндекс',
+                'type'              => 'text',
+                'custom_attributes' => [
+                    'required' => true,
+                ],
+            ],
+            'yandex_map_api_key' => [
+                'type'              => 'text',
+                'title'             => 'Токен API Яндекс.Карты',
+                'description'       => 'Ключ доступа к API Яндекс. Процесс генерации описан на <a rel="noopener nofollower" href="https://yandex.ru/dev/jsapi-v2-1/doc/ru/#get-api-key" target="_blank">странице</a>.',
+                'custom_attributes' => [
+                    'required' => true,
+                ],
+            ],
+            'seller_address' => [
+                'title'       => 'Адрес продавца',
+                'type'        => 'text',
+                // 'desc_tip'    => true,
+                'description' => 'Адрес точки выдачи',
+            ],
+            'seller_name'  => [
+                'title'             => 'ФИО',
+                'type'              => 'text',
+                'custom_attributes' => [
+                    'required' => true,
+                ],
+            ],
+            'seller_phone' => [
+                'title'             => 'Телефон',
+                'type'              => 'text',
+                // 'desc_tip'          => true,
+                'description'       => 'Должен передаваться в международном формате: код страны (для России +7) и сам номер (10 и более цифр)',
+                'custom_attributes' => [
+                    'required' => true,
+                ],
+            ],
+            'default_weight' => [
+				'title'             => 'Вес товара по умолчанию',
+				'type'              => 'number',
+				'description'       => 'Вес товара в г',
+				'custom_attributes' => [
+					'min' => 1,
+				],
+			],
+			'default_width' => [
+				'title'             => 'Ширина товара по умолчанию',
+				'type'              => 'number',
+				'description'       => 'Ширина товара в cм',
+				'custom_attributes' => [
+					'min' => 1,
+				],
+			],
+			'default_length' => [
+				'title'             => 'Длина товара по умолчанию',
+				'type'              => 'number',
+				'description'       => 'Длина товара в cм',
+				'custom_attributes' => [
+					'min' => 1,
+				],
+			],
+			'default_height' => [
+				'title'             => 'Высота товара по умолчанию',
+				'type'              => 'number',
+				'description'       => 'Высота товара в cм',
+				'custom_attributes' => [
+					'min' => 1,
+				],
+			],
+        ];
 	}
+
+    /**
+     * Enable settings page.
+     */
+    public function has_settings() {
+        return true;
+    }
 }

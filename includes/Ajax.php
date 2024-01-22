@@ -5,13 +5,18 @@
 
 use Imicra\WcYandexDelivery\Geocoder;
 use Imicra\WcYandexDelivery\Client;
+use Imicra\WcYandexDelivery\Helper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 class Ajax {
+    private $token;
+
     function __construct() {
+        $this->token = Helper::getActualShippingMethod()->get_option( 'client_secret' );
+
         $this->add_ajax_events();
     }
 
@@ -70,7 +75,7 @@ class Ajax {
         $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
         $args = [
             'headers' => [
-                'Authorization'   => "Bearer y0_AgAAAAByecb5AAc6MQAAAADzZWvYmy2Q72usQquHONr7vEXdUJNRcFY",
+                'Authorization'   => "Bearer {$this->token}",
                 'Accept-Language' => 'ru',
                 'Content-Type'    => 'application/json'
             ]
@@ -89,7 +94,7 @@ class Ajax {
         $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
         $headers = [
             'headers' => [
-                'Authorization'   => "Bearer y0_AgAAAAByecb5AAc6MQAAAADzZWvYmy2Q72usQquHONr7vEXdUJNRcFY",
+                'Authorization'   => "Bearer {$this->token}",
                 'Accept-Language' => 'ru',
                 'Content-Type'    => 'application/json'
             ]
