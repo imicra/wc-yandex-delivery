@@ -100,6 +100,8 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
             add_filter( 'woocommerce_shipping_methods', [ $this, 'add_shipping_method' ] );
             add_action( 'wp_enqueue_scripts', [ $this, 'register_assets' ] );
             add_action( 'admin_enqueue_scripts', [ $this, 'register_assets_admin' ] );
+
+            new Ajax;
         }
 
         public function init_shipping_method() {

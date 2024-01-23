@@ -3,9 +3,9 @@
  * Class Ajax file.
  */
 
+use Imicra\WcYandexDelivery\Helper;
 use Imicra\WcYandexDelivery\Geocoder;
 use Imicra\WcYandexDelivery\Client;
-use Imicra\WcYandexDelivery\Helper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -112,5 +112,3 @@ class Ajax {
         wp_send_json( $result );
     }
 }
-
-new Ajax;
