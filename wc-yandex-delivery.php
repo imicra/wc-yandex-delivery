@@ -116,8 +116,8 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
 
         public static function register_assets() {
             if ( is_checkout() ) {
-                wp_enqueue_style( IMYAD_PLUGIN_ID . '-checkout', plugins_url( '/assets/css/style.css', __FILE__ ), [], '1.0.0' );
-                wp_enqueue_script( IMYAD_PLUGIN_ID . '-checkout', plugins_url( '/assets/js/checkout.js', __FILE__ ), [], '1.0.0', true );
+                wp_enqueue_style( IMYAD_PLUGIN_ID . '-checkout', plugins_url( '/assets/css/style.css', __FILE__ ), [], IMYAD_SCRIPT_VERSION );
+                wp_enqueue_script( IMYAD_PLUGIN_ID . '-checkout', plugins_url( '/assets/js/checkout.js', __FILE__ ), [], IMYAD_SCRIPT_VERSION, true );
 
                 wp_localize_script( IMYAD_PLUGIN_ID . '-checkout', 'imwcyad',
                     array(
@@ -130,7 +130,7 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
 
         public function register_assets_admin( $hook_suffix ) {
             if ( 'woocommerce_page_wc-orders' === $hook_suffix ) {
-                wp_enqueue_script( IMYAD_PLUGIN_ID . '-order', plugins_url( '/assets/js/order.js', __FILE__ ), [], '1.0.0', true );
+                wp_enqueue_script( IMYAD_PLUGIN_ID . '-order', plugins_url( '/assets/js/order.js', __FILE__ ), [], IMYAD_SCRIPT_VERSION, true );
 
                 wp_localize_script( IMYAD_PLUGIN_ID . '-order', 'imwcyad',
                     array(
@@ -158,6 +158,7 @@ function imwcyad_plugin_initialize() {
     }
 
     define( 'IMYAD_PLUGIN_ID', 'imicra-yandex-delivery' );
+    define( 'IMYAD_SCRIPT_VERSION', '1.0.2' );
 
     $GLOBALS['imwcyad'] = WcYandexDelivery::instance();
 }

@@ -68,6 +68,9 @@ class Ajax {
         wp_send_json( $response );
     }
 
+    /**
+     * Order info in admin.
+     */
     public function order_info() {
         $claim_id = wp_unslash( $_POST['claim_id'] );
         $path =  'claims/info';
@@ -87,8 +90,12 @@ class Ajax {
         wp_send_json( $result );
     }
 
+    /**
+     * Cancel Order in admin.
+     */
     public function order_cancel() {
         $claim_id = wp_unslash( $_POST['claim_id'] );
+        $order_id = wp_unslash( $_POST['order_id'] );
         $path =  'claims/cancel';
         $query = "claim_id={$claim_id}";
         $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
@@ -108,6 +115,10 @@ class Ajax {
         $response = wp_remote_post( $url, $args );
         $result = wp_remote_retrieve_body( $response );
         $result = json_decode( $result, true );
+
+        // change order status to cancelled
+        $order = wc_get_order( $order_id );
+        $order->update_status( 'cancelled' );
 
         wp_send_json( $result );
     }

@@ -162,6 +162,12 @@ class WC_Yandex_Shipping_Method extends WC_Shipping_Method {
 					'min' => 1,
 				],
 			],
+            'warehouse_lon' => [
+                'type'        => 'hidden',
+            ],
+            'warehouse_lat' => [
+                'type'        => 'hidden',
+            ],
         ];
 	}
 

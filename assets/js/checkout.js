@@ -2,9 +2,9 @@ jQuery( function( $ ) {
 
     var wc_checkout_form = {
         $checkout_form: $( 'form.checkout' ),
-        address_field: $('.address-field input.input-text'),
+        address_field: $('.address-field input.input-text'), // button
         init: function() {
-            this.$checkout_form.on( 'change blur', '.address-field input.input-text', this.update_checkout_action );
+            this.$checkout_form.on( 'change blur', '.address-field input.input-text', this.update_checkout_action ); // TODO click on button
             this.$checkout_form.on( 'change', 'input.shipping_method', this.change_shipping_method );
             this.init_shipping();
         },
@@ -56,7 +56,8 @@ jQuery( function( $ ) {
             }
 
             var subtotal = $('.woocommerce-checkout-review-order-table').find('.cart-subtotal .sum').text();
-            var cost = typeof response.pricing !== 'undefined' && response.pricing.length !== 0 ? response.pricing[0].offer.price : 0;
+            var cost = typeof response.pricing !== 'undefined' && response.pricing.length !== 0 ? response.pricing.offer.price : 0;
+            cost = parseFloat(cost);
             var total = parseFloat(subtotal) + cost;
             var claimId = response.id;
 
@@ -83,7 +84,7 @@ jQuery( function( $ ) {
             var method = $(this).val().split(':');
 
             if ("imicra-yandex-delivery" === method[0]) {
-                wc_checkout_form.address_field.trigger('change');
+                wc_checkout_form.address_field.trigger('change'); // click
             }
         },
         init_shipping: function() {
@@ -91,7 +92,7 @@ jQuery( function( $ ) {
                 var method = $(this).val().split(':');
 
                 if ("imicra-yandex-delivery" === method[0] && $(this).is(':checked')) {
-                    wc_checkout_form.address_field.trigger('change');
+                    wc_checkout_form.address_field.trigger('change'); // click
                 }
             })
         }

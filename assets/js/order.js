@@ -27,13 +27,15 @@ jQuery( function( $ ) {
         },
         cancel_claim: function() {
             var $this = $(this),
-                id = $this.data('id');
+                claim_id = $this.data('claim-id'),
+                order_id = $this.data('order-id');
 
             $.ajax({
                 type: 'POST',
                 url: imwcyad.ajax_url,
                 data: {
-                    claim_id : id,
+                    claim_id : claim_id,
+                    order_id : order_id,
                     action: 'imwcyad_order_cancel'
                 },
                 success: function (response) {

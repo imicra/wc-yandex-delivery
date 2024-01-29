@@ -89,7 +89,7 @@ function imicra_order_shipping_data( $order_id ) {
                 if ( array_key_exists( 'id', $claim_data ) ) :
                 ?>
                     <button type="button" class="button imwcyad_btn_info" data-id="<?php echo $claim_data['id']; ?>">Информация по заявке</button>
-                    <button type="button" class="button imwcyad_btn_cancel" data-id="<?php echo $claim_data['id']; ?>">Отмена заявки</button>
+                    <button type="button" class="button imwcyad_btn_cancel" data-claim-id="<?php echo $claim_data['id']; ?>" data-order-id="<?php echo $order_id; ?>">Отмена заявки</button>
                     <div class="imwcyad_order_info" style="display: none;">
                         <div class="cancel">Возможность отмены: <b>-</b></div>
                         <div class="status">Статус заявки: <b>-</b></div>
