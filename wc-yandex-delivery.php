@@ -158,7 +158,7 @@ function imwcyad_plugin_initialize() {
     }
 
     define( 'IMYAD_PLUGIN_ID', 'imicra-yandex-delivery' );
-    define( 'IMYAD_SCRIPT_VERSION', '1.0.2' );
+    define( 'IMYAD_SCRIPT_VERSION', '1.0.3' );
 
     $GLOBALS['imwcyad'] = WcYandexDelivery::instance();
 }

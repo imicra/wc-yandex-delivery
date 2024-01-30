@@ -40,11 +40,6 @@ class Client {
 
         $info = $this->getUntilReadyForApproval( $claim_id );
 
-        // return [
-        //     $claim_id,
-        //     floatval( $info['pricing']['offer']['price'] ),
-        //     $info
-        // ];
         return $info;
         // available_cancel_state === free - claims/cancel
     }
@@ -115,10 +110,7 @@ class Client {
                         'coordinates' => $this->position,
                         'fullname' => $this->address
                     ],
-                    'contact' => [
-                        "name" => "Иван",
-                        "phone" => "+79099999991",
-                    ],
+                    'contact' => $this->claimCustomer(),
                     "point_id" => 2,
                     "type" => "destination",
                     "visit_order" => 2
@@ -210,6 +202,31 @@ class Client {
         }
 
         return $items;
+    }
+
+    private function claimCustomer() {
+        $contact = [];
+        $customer = WC()->cart->get_customer();
+        $changes = $customer->get_changes();
+
+        if ( $customer->get_id() ) {
+            // if customer exists or logged in
+            $first_name = $customer->get_billing_first_name() ? $customer->get_billing_first_name() : $customer->get_shipping_first_name();
+            $last_name = $customer->get_billing_last_name() ? $customer->get_billing_last_name() : $customer->get_shipping_last_name();
+            $phone = $customer->get_billing_phone() ? $customer->get_billing_phone() : $customer->get_shipping_phone();
+        } else {
+            $first_name = $changes["billing"]["first_name"] ? $changes["billing"]["first_name"] : $changes["shipping"]["first_name"];
+            $last_name = $changes["billing"]["last_name"] ? $changes["billing"]["last_name"] : $changes["shipping"]["last_name"];
+            $phone = $changes["billing"]["phone"] ? $changes["billing"]["phone"] : $changes["shipping"]["phone"];
+        }
+
+        $name = $first_name . ' ' . $last_name;
+
+        // TODO this data maybe wrong - because its gets from session
+        $contact["name"] = $name;
+        $contact["phone"] = $phone;
+
+        return $contact;
     }
 
     private function getHeaders() {

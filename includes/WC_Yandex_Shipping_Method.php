@@ -62,8 +62,12 @@ class WC_Yandex_Shipping_Method extends WC_Shipping_Method {
         //     }
         // }
 
-        // $cost = WC()->session->get( 'imwcyad_cost' );
+        // `$cost = 0;
+        // if ( ! empty( $_REQUEST["imwcyad_cost"] ) ) {
+        //     $cost = (int)$_REQUEST["imwcyad_cost"];
+        // }`
 
+        // $cost = WC()->session->get( 'imwcyad_cost' );
         // if ( empty( $cost ) ) {
         //     $cost = 0;
         // }

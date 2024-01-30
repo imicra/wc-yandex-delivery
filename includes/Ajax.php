@@ -41,7 +41,7 @@ class Ajax {
         $response = new Client( $position, $address );
         $response = $response->init();
 
-        $offerPrice = $response[1];
+        $offerPrice = floatval( $response['pricing']['offer']['price'] );
 
         // WC()->session->set( 'imwcyad_cost', null );
         // WC()->session->set( 'imwcyad_cost', $offerPrice );

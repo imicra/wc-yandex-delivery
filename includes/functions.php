@@ -23,6 +23,7 @@ add_action( 'woocommerce_after_shipping_rate', 'imicra_shipping_rate_cost' );
  */
 function imicra_shipping_method_label( $label, $method ) {
     if ( strstr( $method->id, IMYAD_PLUGIN_ID ) ) {
+        $label = $method->get_label();
         $label .= ': ' . wc_price( 0 );
     }
 
@@ -198,6 +199,6 @@ function imicra_get_cart_contents_data() {
     );
 
     // return $cart_contents_data;
-    imicra_var_dump($cart_contents_data);
+    imicra_var_dump(WC()->cart->get_customer()->get_changes()["billing"]["phone"]);
 }
 // add_action( 'woocommerce_after_checkout_form', 'imicra_get_cart_contents_data', 11 );
