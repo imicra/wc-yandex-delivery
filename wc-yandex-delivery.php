@@ -89,6 +89,7 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
 
             require_once dirname( __FILE__ ) . '/' . 'includes/functions.php';
             require_once dirname( __FILE__ ) . '/' . 'includes/Ajax.php';
+            // require_once dirname( __FILE__ ) . '/' . 'includes/Order.php';
         }
 
         /**
@@ -102,6 +103,7 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
             add_action( 'admin_enqueue_scripts', [ $this, 'register_assets_admin' ] );
 
             new Ajax;
+            // Order::instance();
         }
 
         public function init_shipping_method() {
@@ -138,6 +140,18 @@ if ( ! class_exists( 'WcYandexDelivery' ) ) :
                         'ajax_url' => admin_url( 'admin-ajax.php' ),
                         'statuses' => json_encode( \Imicra\WcYandexDelivery\Status::namesList() ),
                         'available_cancel_state' => json_encode( \Imicra\WcYandexDelivery\Status::cancelInfo() ),
+                    )
+                );
+            }
+
+            if ( 'woocommerce_page_wc-settings' === $hook_suffix ) {
+                wp_enqueue_script( IMYAD_PLUGIN_ID . '-settings', plugins_url( '/assets/js/settings.js', __FILE__ ), [], IMYAD_SCRIPT_VERSION, true );
+
+                wp_localize_script( IMYAD_PLUGIN_ID . '-settings', 'imwcyad',
+                    array(
+                        'debug' => SCRIPT_DEBUG,
+                        'ajax_url' => admin_url( 'admin-ajax.php' ),
+                        'plugin_id' => IMYAD_PLUGIN_ID,
                     )
                 );
             }

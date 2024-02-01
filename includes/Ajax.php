@@ -25,12 +25,21 @@ class Ajax {
             'claims',
             'order_info',
             'order_cancel',
+            'warehouse',
         ];
 
         foreach ( $ajax_events as $ajax_event ) {
             add_action( 'wp_ajax_imwcyad_' . $ajax_event, array( $this, $ajax_event ) );
 			add_action( 'wp_ajax_nopriv_imwcyad_' . $ajax_event, array( $this, $ajax_event ) );
         }
+    }
+
+    public function warehouse() {
+        $address = isset( $_POST['address'] ) ? wc_clean( wp_unslash( $_POST['address'] ) ) : null;
+
+        $position = Geocoder::getPoint( $address );
+
+        wp_send_json( $position );
     }
 
     public function claims() {

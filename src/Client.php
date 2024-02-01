@@ -13,9 +13,8 @@ class Client {
 
     protected WC_Shipping_Method $deliveryMethod;
 
-    // TODO get this from options
-    private const WAREHOUSE_LON = 37.717761;
-    private const WAREHOUSE_LAT = 55.48098;
+    private $warehouse_lon;
+    private $warehouse_lat;
 
     /**
      * Destination address
@@ -32,6 +31,9 @@ class Client {
         $this->address = $address;
 
         $this->deliveryMethod = Helper::getActualShippingMethod();
+
+        $this->warehouse_lon = floatval( $this->deliveryMethod->get_option( 'warehouse_lon' ) );
+        $this->warehouse_lat = floatval( $this->deliveryMethod->get_option( 'warehouse_lat' ) );
     }
 
     public function init() {
@@ -56,9 +58,9 @@ class Client {
 			} while ( 'ready_for_approval' !== $res['status'] && $i < 15 );
         }
 
-        if ( 'ready_for_approval' !== $res['status'] ) {
-            return "Current status: {$res['status']}";
-        }
+        // if ( 'ready_for_approval' !== $res['status'] ) {
+        //     return "Current status: {$res['status']}";
+        // }
 
         // return $this->claimAccept( $claim_id );
         return $this->claimInfo( $claim_id );
@@ -92,8 +94,8 @@ class Client {
                 [
                     'address' => [
                         'coordinates' => [
-                            self::WAREHOUSE_LON,
-                            self::WAREHOUSE_LAT
+                            $this->warehouse_lon,
+                            $this->warehouse_lat
                         ],
                         'fullname' => $this->deliveryMethod->get_option( 'seller_address' )
                     ],
@@ -223,6 +225,8 @@ class Client {
         $name = $first_name . ' ' . $last_name;
 
         // TODO this data maybe wrong - because its gets from session
+        $name = $name ? $name : $this->deliveryMethod->get_option( 'seller_name' ); // workaround
+        $phone = $phone ? $phone : $this->deliveryMethod->get_option( 'seller_phone' ); // workaround
         $contact["name"] = $name;
         $contact["phone"] = $phone;
 

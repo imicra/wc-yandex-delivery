@@ -118,6 +118,16 @@ class WC_Yandex_Shipping_Method extends WC_Shipping_Method {
                 // 'desc_tip'    => true,
                 'description' => 'Адрес точки выдачи',
             ],
+            'address_btn'                            => [
+                'type'  => 'hidden',
+                'title' => 'Определить координаты адреса продавца:',
+            ],
+            'warehouse_lon' => [
+                'type'        => 'hidden',
+            ],
+            'warehouse_lat' => [
+                'type'        => 'hidden',
+            ],
             'seller_name'  => [
                 'title'             => 'ФИО',
                 'type'              => 'text',
@@ -166,12 +176,6 @@ class WC_Yandex_Shipping_Method extends WC_Shipping_Method {
 					'min' => 1,
 				],
 			],
-            'warehouse_lon' => [
-                'type'        => 'hidden',
-            ],
-            'warehouse_lat' => [
-                'type'        => 'hidden',
-            ],
         ];
 	}
 

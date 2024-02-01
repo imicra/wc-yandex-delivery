@@ -42,40 +42,54 @@ function imicra_checkout_create_order( $order ) {
 
         $order->set_shipping_total( $cost );
         $order->set_total( $total );
-
-
     }
 
-    // create request to api for accept claim
+    // create order meta for keep claim id in order
     if ( isset( $_POST['imwcyad_data'] ) && ! empty( $_POST['imwcyad_data'] ) ) {
         $claim_id = wp_unslash( $_POST['imwcyad_data'] );
-        $path =  'claims/accept';
-        $query = "claim_id={$claim_id}";
-        $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
-        $token = Helper::getActualShippingMethod()->get_option( 'client_secret' );
-        $headers = [
-            'headers' => [
-                'Authorization'   => "Bearer {$token}",
-                'Accept-Language' => 'ru',
-                'Content-Type'    => 'application/json'
-            ]
-        ];
-        $body = [
-            'version' => 1
-        ];
-        $args['body'] = json_encode( $body );
-        $args = array_merge( $headers, $args );
-        $response = wp_remote_post( $url, $args );
-        $result = wp_remote_retrieve_body( $response );
-        $result = json_decode( $result, true );
 
-        // create order meta for keep claim data in order
-        $order->update_meta_data( 'imwcyad_data', $result );
+        $order->update_meta_data( 'imwcyad_claim_id', $claim_id );
     }
-
 }
 add_action( 'woocommerce_checkout_create_order', 'imicra_checkout_create_order' );
 
+/**
+ * Create request to api for accept claim when a payment is complete.
+ */
+function imicra_accept_claims_order( $order_id ) {
+    $order = wc_get_order( $order_id );
+    $claim_id = $order->get_meta( 'imwcyad_claim_id' );
+
+    if ( $claim_id ) {
+        // $path =  'claims/accept';
+        // $query = "claim_id={$claim_id}";
+        // $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
+        // $token = Helper::getActualShippingMethod()->get_option( 'client_secret' );
+        // $headers = [
+        //     'headers' => [
+        //         'Authorization'   => "Bearer {$token}",
+        //         'Accept-Language' => 'ru',
+        //         'Content-Type'    => 'application/json'
+        //     ]
+        // ];
+        // $body = [
+        //     'version' => 1
+        // ];
+        // $args['body'] = json_encode( $body );
+        // $args = array_merge( $headers, $args );
+        // $response = wp_remote_post( $url, $args );
+        // $result = wp_remote_retrieve_body( $response );
+        // $result = json_decode( $result, true );
+
+        // create order meta for keep claim data in order
+        $order->update_meta_data( 'imwcyad_data', '$result' );
+    }
+}
+add_action( 'woocommerce_order_status_on-hold_to_processing', 'imicra_accept_claims_order' );
+
+/**
+ * Buttons in order item shipping.
+ */
 function imicra_order_shipping_data( $order_id ) {
     $order = wc_get_order( $order_id );
     $claim_data = $order->get_meta( 'imwcyad_data' );
