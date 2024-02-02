@@ -58,9 +58,9 @@ class Client {
 			} while ( 'ready_for_approval' !== $res['status'] && $i < 15 );
         }
 
-        // if ( 'ready_for_approval' !== $res['status'] ) {
-        //     return "Current status: {$res['status']}";
-        // }
+        if ( 'ready_for_approval' !== $res['status'] ) {
+            return "Current status: {$res['status']}";
+        }
 
         // return $this->claimAccept( $claim_id );
         return $this->claimInfo( $claim_id );

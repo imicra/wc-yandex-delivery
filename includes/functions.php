@@ -60,32 +60,32 @@ function imicra_accept_claims_order( $order_id ) {
     $order = wc_get_order( $order_id );
     $claim_id = $order->get_meta( 'imwcyad_claim_id' );
 
-    if ( $claim_id ) {
-        // $path =  'claims/accept';
-        // $query = "claim_id={$claim_id}";
-        // $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
-        // $token = Helper::getActualShippingMethod()->get_option( 'client_secret' );
-        // $headers = [
-        //     'headers' => [
-        //         'Authorization'   => "Bearer {$token}",
-        //         'Accept-Language' => 'ru',
-        //         'Content-Type'    => 'application/json'
-        //     ]
-        // ];
-        // $body = [
-        //     'version' => 1
-        // ];
-        // $args['body'] = json_encode( $body );
-        // $args = array_merge( $headers, $args );
-        // $response = wp_remote_post( $url, $args );
-        // $result = wp_remote_retrieve_body( $response );
-        // $result = json_decode( $result, true );
+    if ( $order->has_status( 'processing' ) || $order->has_status( 'completed' ) ) {
+        $path =  'claims/accept';
+        $query = "claim_id={$claim_id}";
+        $url = "https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/$path?$query";
+        $token = Helper::getActualShippingMethod()->get_option( 'client_secret' );
+        $headers = [
+            'headers' => [
+                'Authorization'   => "Bearer {$token}",
+                'Accept-Language' => 'ru',
+                'Content-Type'    => 'application/json'
+            ]
+        ];
+        $body = [
+            'version' => 1
+        ];
+        $args['body'] = json_encode( $body );
+        $args = array_merge( $headers, $args );
+        $response = wp_remote_post( $url, $args );
+        $result = wp_remote_retrieve_body( $response );
+        $result = json_decode( $result, true );
 
         // create order meta for keep claim data in order
         $order->update_meta_data( 'imwcyad_data', '$result' );
     }
 }
-add_action( 'woocommerce_order_status_on-hold_to_processing', 'imicra_accept_claims_order' );
+add_action( 'woocommerce_payment_complete', 'imicra_accept_claims_order' );
 
 /**
  * Buttons in order item shipping.

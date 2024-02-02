@@ -4,7 +4,7 @@ jQuery( function( $ ) {
         $checkout_form: $( 'form.checkout' ),
         address_field: $('.address-field input.input-text'),
         init: function() {
-            this.$checkout_form.on( 'change blur', '.address-field input.input-text', this.update_checkout_action );
+            this.$checkout_form.on( 'change', '.address-field input.input-text', this.update_checkout_action );
             this.$checkout_form.on( 'change', 'input.shipping_method', this.change_shipping_method );
             this.init_shipping();
         },
